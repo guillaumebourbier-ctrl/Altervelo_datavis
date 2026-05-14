@@ -1,0 +1,232 @@
+\usepackage[french]{babel} 
+\usepackage{geometry}
+\usepackage{xspace}
+\usepackage{subfigure}
+\usepackage{tikz}
+\usepackage{fancyhdr} % For custom headers
+\usepackage{lastpage} % To determine the last page for the footer
+\usepackage{extramarks} % For headers and footers
+\usepackage[most]{tcolorbox} % For problem answer sections
+\usepackage{graphicx} % For inserting images
+\usepackage{xcolor} % For link coloring
+\usepackage[hidelinks]{hyperref} % For URL links (no box or color name)
+\usepackage[T1]{fontenc} 
+\usepackage[utf8]{inputenc}
+\usepackage{titlesec} % Allows creating custom \section's
+\usepackage{marvosym} % Allows the use of symbols
+\usepackage{tabularx,colortbl} % Advanced table configurations
+%\usepackage{scrpage2} % provide heauder configuration
+\usepackage{color}
+\usepackage{lipsum}
+\usepackage[normalem]{ ulem }
+\usepackage{soul}
+\usepackage{listings}
+\usepackage{pkg/pythonhighlight}
+\usepackage{graphicx,subfigure}
+
+%color configurationn
+\definecolor{DeepSkyBlue}{rgb}{0,0.75,1}
+\definecolor{DarkBlue}{rgb}{0,.2,.25}
+\definecolor{DodgerBlue}{rgb}{0.12,0.56,1}
+\definecolor{LineGray}{rgb}{0.75,0.75,0.75}
+\definecolor{DarkGray}{rgb}{0.35,0.35,0.35}
+\definecolor{DarkRed}{rgb}{0.4,0,0}
+
+%\usepackage[colorlinks=true,           linkcolor=DarkBlue,urlcolor=DarkBlue,citecolor=gra]{hyperref} % Advanced table configurations
+
+
+% Pour le filigrane "Confidentiel" (désactivé par défaut)
+% Note : l'option [pages=1] nécessite draftwatermark v4+ (sept. 2024).
+% Pour réactiver le watermark, décommenter les 4 lignes ci-dessous et
+% s'assurer d'avoir une version récente de draftwatermark (TL2024+ ou MiKTeX à jour).
+% \usepackage[pages=1]{draftwatermark} % pages=1 → seulement sur la page de garde
+% \SetWatermarkText{Confidentiel}      % texte du filigrane
+% \SetWatermarkScale{3}                % taille
+% \SetWatermarkLightness{0.85}         % 0 = noir, 1 = transparent
+
+
+\newcommand{\coltext}{DodgerBlue}
+\newcommand{\colte}{DarkRed}
+\usepackage{titlesec}
+
+% interlignes
+\usepackage{setspace}
+
+
+%\addbibresource{sources.bib}
+%\bibliography{style:IEEEtran}
+%\bibliography{biblioHarvest}
+
+% sectionn configuration
+\titleformat{\section}
+%{\color{\coltext}\normalfont\Large\bfseries\scshape\raggedleft}
+{\color{\coltext}\normalfont\Large\bfseries\scshape}
+{\color{\coltext}}{0em}{}[\titlerule]
+
+\titleformat{\subsection}
+{\color{\coltext}\normalfont\large\bfseries}
+{\color{\coltext}\thesubsection}{0.65em}{}
+
+\titleformat{\subsubsection}
+{\color{\coltext}\normalfont\large}
+{\color{\coltext}\thesubsubsection}{0.55em}{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AFFICHER ou NON LES TODO %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\newif\iftodovar
+
+\input{_todoflag.tex}
+
+
+\iftodovar
+        \usepackage[textsize=scriptsize, textwidth=2in]{todonotes}
+        % Margins
+        \geometry{
+            a4paper,
+            tmargin=1in,
+            bmargin=1in,
+            %lmargin=1in,
+            lmargin=.2in,
+            %rmargin=1in,
+            rmargin=2.3in,
+            %textwidth=6.5in,
+            textwidth=5.1in,
+            textheight=9.0in,
+            headsep=0.25in  
+        }
+
+\else
+        \usepackage[disable, textsize=scriptsize, textwidth=2in]{todonotes}
+        % Margins
+        \geometry{
+            a4paper,
+            tmargin=1in,
+            bmargin=1in,
+            lmargin=1in,
+            %lmargin=.2in,
+            rmargin=1in,
+            %rmargin=2.3in,
+            %textwidth=6.5in,
+            textwidth=5.1in,
+            textheight=9.0in,
+            headsep=0.25in  
+        }
+        
+\fi
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+% Header and footer
+\pagestyle{fancy}
+\lhead{} % Top left header
+\chead{} % Top center header
+\rhead{} % Top right header
+\lfoot{} % Bottom left footer
+\cfoot{} % Bottom center footer
+\rfoot{\scriptsize \thepage\ / \pageref{LastPage}} % Bottom right footer
+\renewcommand\headrulewidth{0pt} % Size of the header rule
+\renewcommand\footrulewidth{0.1pt} % Size of the footer rule
+
+% Other configurations
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+\setlength\parskip{1pt} % Ensures paragraphs are still recognizable as such
+%\setcounter{secnumdepth}{0} % Removes default section numbers
+\setcounter{tocdepth}{3} % Sets depth of table of contents
+\linespread{1.1}
+%\pagestyle{scrheadings} % Print the headers and footers on all pages
+
+%----------------------------------------------------------------------------------------
+%  TEMPLATES VALUES
+%----------------------------------------------------------------------------------------
+
+\input{_macro}
+
+
+
+%----------------------------------------------------------------------------------------
+%  DOCUMENT STRUCTURE (MACROS & ENVIRONMENTS)
+%----------------------------------------------------------------------------------------
+
+% Colored links macro
+\newcommand{\hrefcol}[3] {\href{#1}{\textcolor{#3}{#2}}}
+
+% Creates a counter to keep track of the number of problems
+\newcounter{homeworkProblemCounter}
+
+% Macro for custom title page signature header
+\newsavebox{\myTitleSignature}
+\sbox{\myTitleSignature}{%
+\begin{tabular*}{\textwidth}{@{}l@{}|@{\extracolsep{0.125in}}l@{}}%
+\parbox{4.25in}{\raggedright{\includegraphics[width=3.5cm]{\myLogo}}} &
+\parbox[c][]{2.5in}{{\textbf{\myName} \par}
+                    {\small \mySchool \par}/tcolor
+                    {\small \myUniversity \par}
+                    {\small \myLocation \par}
+                    {\small \hrefcol{https://\myURL}{\myURL}{blue} \par}
+                    {\small \hrefcol{mailto:\myEmail}{\myEmail}{blue}} \par}
+\end{tabular*}}
+
+
+\newcommand{\problemAnswer}[1]{ % Defines the problem answer command with the content as the only argument
+\vspace{.5cm}
+\begin{tcolorbox}[arc=0pt,breakable,enhanced,colback=gray!5!white,title=Answer]%
+#1
+\end{tcolorbox}%
+% Alternative - Makes the box around the problem answer and puts the content inside
+%noindent\framebox[\columnwidth][c]{\begin{minipage}{0.98\columnwidth}#1\end{minipage}}
+\vspace{.5cm}
+}
+
+\newcommand{\cleanBox}[1]{ % Defines the problem answer command with the content as the only argument
+\vspace{.5cm}
+\begin{tcolorbox}[boxrule=0.2pt, arc=0pt,breakable,enhanced,colback=gray!1!white]%
+#1
+\end{tcolorbox}%
+% Alternative - Makes the box around the problem answer and puts the content inside
+%noindent\framebox[\columnwidth][c]{\begin{minipage}{0.98\columnwidth}#1\end{minipage}}
+\vspace{.5cm}
+}
+
+
+\newcommand{\grayBox}[2]{ % Defines the problem answer command with the content as the only argument
+\vspace{.5cm}
+\begin{tcolorbox}[boxrule=0.2pt, breakable,enhanced,colback=gray!5!white,title=#1]%
+#2
+\end{tcolorbox}%
+% Alternative - Makes the box around the problem answer and puts the content inside
+%\noindent\framebox[\columnwidth][c]{\begin{minipage}{0.98\columnwidth}#1\end{minipage}}
+\vspace{.5cm}
+}
+
+\renewenvironment{thebibliography}[1]
+     {% \section*{\refname}%
+      % \@mkboth{\MakeUppercase\refname}{\MakeUppercase\refname}%
+      \list{\@biblabel{\@arabic\c@enumiv}}%
+           {\settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin\labelsep
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+      \sloppy
+      \clubpenalty4000
+      \@clubpenalty \clubpenalty
+      \widowpenalty4000%
+      \sfcode`\.\@m}
+     {\def\@noitemerr
+       {\@latex@warning{Empty `thebibliography' environment}}%
+      \endlist}
+
