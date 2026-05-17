@@ -58,21 +58,54 @@ def get_latest_snapshot() -> tuple[str, pd.DataFrame]:
 
 @st.cache_data(ttl=300)
 def get_latest_predictions(horizon_min: int) -> tuple[str, pd.DataFrame]:
-    """Dernières prédictions live pour un horizon donné (jointes aux stations)."""
+    """Dernières prédictions live si dispo, sinon backtest."""
+
     with _conn() as c:
+
+        # priorité au live
         latest = c.execute(
-            "SELECT MAX(ts_pred) FROM predictions WHERE source='live' AND horizon_min=?",
+            """
+            SELECT MAX(ts_pred)
+            FROM predictions
+            WHERE source='live'
+              AND horizon_min=?
+            """,
             (horizon_min,),
         ).fetchone()[0]
+
+        source = "live"
+
+        # fallback backtest
+        if latest is None:
+            latest = c.execute(
+                """
+                SELECT MAX(ts_pred)
+                FROM predictions
+                WHERE source='backtest'
+                  AND horizon_min=?
+                """,
+                (horizon_min,),
+            ).fetchone()[0]
+
+            source = "backtest"
+
         if latest is None:
             return None, pd.DataFrame()
-        df = pd.read_sql("""
+
+        df = pd.read_sql(
+            """
             SELECT p.*, s.station_name, s.lat, s.lon, s.capacity
             FROM predictions p
             JOIN stations s USING (station_index)
-            WHERE p.ts_pred = ? AND p.horizon_min = ?
+            WHERE p.ts_pred = ?
+              AND p.horizon_min = ?
+              AND p.source = ?
             ORDER BY station_index
-        """, c, params=(latest, horizon_min))
+            """,
+            c,
+            params=(latest, horizon_min, source),
+        )
+
     return latest, df
 
 
@@ -189,24 +222,63 @@ def get_monitoring_rounded(horizon_min: int) -> dict:
 
 @st.cache_data(ttl=60)
 def get_pipeline_health() -> dict:
-    """Fraîcheur des données : combien de temps depuis le dernier snapshot."""
+    """Fraîcheur des données."""
+
     with _conn() as c:
-        last_obs = c.execute("SELECT MAX(timestamp) FROM observations").fetchone()[0]
-        last_pred = c.execute(
-            "SELECT MAX(ts_pred) FROM predictions WHERE source='live'"
+
+        last_obs = c.execute(
+            "SELECT MAX(timestamp) FROM observations"
         ).fetchone()[0]
-        n_obs = c.execute("SELECT COUNT(*) FROM observations").fetchone()[0]
+
+        last_pred_live = c.execute(
+            """
+            SELECT MAX(ts_pred)
+            FROM predictions
+            WHERE source='live'
+            """
+        ).fetchone()[0]
+
+        last_pred_back = c.execute(
+            """
+            SELECT MAX(ts_pred)
+            FROM predictions
+            WHERE source='backtest'
+            """
+        ).fetchone()[0]
+
+        n_obs = c.execute(
+            "SELECT COUNT(*) FROM observations"
+        ).fetchone()[0]
+
         n_obs_live = c.execute(
-            "SELECT COUNT(*) FROM observations WHERE source='live'"
+            """
+            SELECT COUNT(*)
+            FROM observations
+            WHERE source='live'
+            """
         ).fetchone()[0]
+
         n_pred_live = c.execute(
-            "SELECT COUNT(*) FROM predictions WHERE source='live'"
+            """
+            SELECT COUNT(*)
+            FROM predictions
+            WHERE source='live'
+            """
         ).fetchone()[0]
+
         n_pred_back = c.execute(
-            "SELECT COUNT(*) FROM predictions WHERE source='backtest'"
+            """
+            SELECT COUNT(*)
+            FROM predictions
+            WHERE source='backtest'
+            """
         ).fetchone()[0]
+
     return dict(
-        last_obs=last_obs, last_pred=last_pred,
-        n_obs=n_obs, n_obs_live=n_obs_live,
-        n_pred_live=n_pred_live, n_pred_back=n_pred_back,
+        last_obs=last_obs,
+        last_pred=last_pred_live or last_pred_back,
+        n_obs=n_obs,
+        n_obs_live=n_obs_live,
+        n_pred_live=n_pred_live,
+        n_pred_back=n_pred_back,
     )
