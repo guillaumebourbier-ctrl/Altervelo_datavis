@@ -49,13 +49,18 @@ def render() -> None:
     if horizon is None:
         horizon = 60
 
-    ts_pred, df = get_latest_predictions(horizon)
+    ts_pred, df, source = get_latest_predictions(horizon)
     if df.empty:
         st.warning(
-            f"Aucune prédiction live à horizon {horizon} min. "
-            "Lance le pipeline (`bash ingest/pipeline.sh`)."
+            f"Aucune prédiction disponible à horizon {horizon} min."
         )
         return
+
+    if source == "backtest":
+        st.info(
+            "Affichage des prédictions backtest "
+            "(pipeline live indisponible sur Streamlit Cloud)."
+        )
 
     df["delta"] = df["y_pred"] - df["y_current"]
     volat = get_station_volatility()
