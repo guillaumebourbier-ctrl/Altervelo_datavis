@@ -56,57 +56,7 @@ def get_latest_snapshot() -> tuple[str, pd.DataFrame]:
     return latest, df
 
 
-@st.cache_data(ttl=300)
-def get_latest_predictions(horizon_min: int) -> tuple[str, pd.DataFrame]:
-    """Dernières prédictions live si dispo, sinon backtest."""
 
-    with _conn() as c:
-
-        # priorité au live
-        latest = c.execute(
-            """
-            SELECT MAX(ts_pred)
-            FROM predictions
-            WHERE source='live'
-              AND horizon_min=?
-            """,
-            (horizon_min,),
-        ).fetchone()[0]
-
-        source = "live"
-
-        # fallback backtest
-        if latest is None:
-            latest = c.execute(
-                """
-                SELECT MAX(ts_pred)
-                FROM predictions
-                WHERE source='backtest'
-                  AND horizon_min=?
-                """,
-                (horizon_min,),
-            ).fetchone()[0]
-
-            source = "backtest"
-
-        if latest is None:
-            return None, pd.DataFrame()
-
-        df = pd.read_sql(
-            """
-            SELECT p.*, s.station_name, s.lat, s.lon, s.capacity
-            FROM predictions p
-            JOIN stations s USING (station_index)
-            WHERE p.ts_pred = ?
-              AND p.horizon_min = ?
-              AND p.source = ?
-            ORDER BY station_index
-            """,
-            c,
-            params=(latest, horizon_min, source),
-        )
-
-    return latest, df
 
 
 @st.cache_data(ttl=300)
